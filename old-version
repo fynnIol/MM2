@@ -1,0 +1,223 @@
+-- Trade Helper GUI
+-- LocalScript: place inside StarterPlayerScripts or StarterGui
+
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
+
+-- === ScreenGui ===
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "TradeHelperGui"
+ScreenGui.ResetOnSpawn = false
+ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+ScreenGui.Parent = PlayerGui
+
+-- === Main Frame (Square) ===
+local MainFrame = Instance.new("Frame")
+MainFrame.Name = "MainFrame"
+MainFrame.Size = UDim2.new(0, 300, 0, 300)
+MainFrame.Position = UDim2.new(0.5, -150, 0.5, -150) -- Centered
+MainFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 40)
+MainFrame.BorderSizePixel = 0
+MainFrame.Parent = ScreenGui
+
+-- Rounded corners
+local UICorner = Instance.new("UICorner")
+UICorner.CornerRadius = UDim.new(0, 10)
+UICorner.Parent = MainFrame
+
+-- Drop shadow effect (using a slightly larger darker frame behind)
+local Shadow = Instance.new("Frame")
+Shadow.Name = "Shadow"
+Shadow.Size = UDim2.new(1, 10, 1, 10)
+Shadow.Position = UDim2.new(0, -5, 0, -5)
+Shadow.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+Shadow.BackgroundTransparency = 0.5
+Shadow.BorderSizePixel = 0
+Shadow.ZIndex = MainFrame.ZIndex - 1
+Shadow.Parent = MainFrame
+
+local ShadowCorner = Instance.new("UICorner")
+ShadowCorner.CornerRadius = UDim.new(0, 14)
+ShadowCorner.Parent = Shadow
+
+-- === Title Bar ===
+local TitleBar = Instance.new("Frame")
+TitleBar.Name = "TitleBar"
+TitleBar.Size = UDim2.new(1, 0, 0, 45)
+TitleBar.Position = UDim2.new(0, 0, 0, 0)
+TitleBar.BackgroundColor3 = Color3.fromRGB(20, 20, 30)
+TitleBar.BorderSizePixel = 0
+TitleBar.Parent = MainFrame
+
+local TitleBarCorner = Instance.new("UICorner")
+TitleBarCorner.CornerRadius = UDim.new(0, 10)
+TitleBarCorner.Parent = TitleBar
+
+-- Fix bottom corners of title bar
+local TitleBarFix = Instance.new("Frame")
+TitleBarFix.Size = UDim2.new(1, 0, 0.5, 0)
+TitleBarFix.Position = UDim2.new(0, 0, 0.5, 0)
+TitleBarFix.BackgroundColor3 = Color3.fromRGB(20, 20, 30)
+TitleBarFix.BorderSizePixel = 0
+TitleBarFix.Parent = TitleBar
+
+-- Title Label
+local TitleLabel = Instance.new("TextLabel")
+TitleLabel.Name = "TitleLabel"
+TitleLabel.Size = UDim2.new(1, -50, 1, 0)
+TitleLabel.Position = UDim2.new(0, 15, 0, 0)
+TitleLabel.BackgroundTransparency = 1
+TitleLabel.Text = "🔄 Trade Helper"
+TitleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+TitleLabel.TextSize = 18
+TitleLabel.Font = Enum.Font.GothamBold
+TitleLabel.TextXAlignment = Enum.TextXAlignment.Left
+TitleLabel.Parent = TitleBar
+
+-- Close Button
+local CloseButton = Instance.new("TextButton")
+CloseButton.Name = "CloseButton"
+CloseButton.Size = UDim2.new(0, 30, 0, 30)
+CloseButton.Position = UDim2.new(1, -38, 0.5, -15)
+CloseButton.BackgroundColor3 = Color3.fromRGB(200, 60, 60)
+CloseButton.Text = "✕"
+CloseButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+CloseButton.TextSize = 14
+CloseButton.Font = Enum.Font.GothamBold
+CloseButton.BorderSizePixel = 0
+CloseButton.Parent = TitleBar
+
+local CloseCorner = Instance.new("UICorner")
+CloseCorner.CornerRadius = UDim.new(0, 6)
+CloseCorner.Parent = CloseButton
+
+-- === Content Area ===
+local ContentFrame = Instance.new("Frame")
+ContentFrame.Name = "ContentFrame"
+ContentFrame.Size = UDim2.new(1, -30, 1, -70)
+ContentFrame.Position = UDim2.new(0, 15, 0, 55)
+ContentFrame.BackgroundTransparency = 1
+ContentFrame.Parent = MainFrame
+
+local UIListLayout = Instance.new("UIListLayout")
+UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+UIListLayout.Padding = UDim.new(0, 12)
+UIListLayout.Parent = ContentFrame
+
+-- === Helper Function: Create Button ===
+local function createButton(text, layoutOrder, color)
+	local Btn = Instance.new("TextButton")
+	Btn.Name = text .. "Button"
+	Btn.Size = UDim2.new(1, 0, 0, 65)
+	Btn.BackgroundColor3 = color or Color3.fromRGB(50, 110, 200)
+	Btn.Text = ""
+	Btn.BorderSizePixel = 0
+	Btn.LayoutOrder = layoutOrder
+	Btn.AutoButtonColor = false
+	Btn.Parent = ContentFrame
+
+	local BtnCorner = Instance.new("UICorner")
+	BtnCorner.CornerRadius = UDim.new(0, 8)
+	BtnCorner.Parent = Btn
+
+	local BtnLabel = Instance.new("TextLabel")
+	BtnLabel.Size = UDim2.new(1, 0, 1, 0)
+	BtnLabel.BackgroundTransparency = 1
+	BtnLabel.Text = text
+	BtnLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+	BtnLabel.TextSize = 15
+	BtnLabel.Font = Enum.Font.GothamSemibold
+	BtnLabel.Parent = Btn
+
+	-- Hover effect
+	Btn.MouseEnter:Connect(function()
+		Btn.BackgroundColor3 = Btn.BackgroundColor3:Lerp(Color3.fromRGB(255, 255, 255), 0.15)
+	end)
+	Btn.MouseLeave:Connect(function()
+		Btn.BackgroundColor3 = color or Color3.fromRGB(50, 110, 200)
+	end)
+	Btn.MouseButton1Down:Connect(function()
+		Btn.BackgroundColor3 = Btn.BackgroundColor3:Lerp(Color3.fromRGB(0, 0, 0), 0.2)
+	end)
+	Btn.MouseButton1Up:Connect(function()
+		Btn.BackgroundColor3 = color or Color3.fromRGB(50, 110, 200)
+	end)
+
+	return Btn
+end
+
+-- === Buttons ===
+local Button1 = createButton("✅  Accepter", 1, Color3.fromRGB(50, 110, 200))
+local Button2 = createButton("💎  Button Placeholder 2", 2, Color3.fromRGB(80, 170, 100))
+
+-- === Accepter Logic ===
+local AcceptTrade = game:GetService("ReplicatedStorage"):WaitForChild("Trade"):WaitForChild("AcceptTrade")
+local accepting = false
+local acceptLoop = nil
+
+Button1.MouseButton1Click:Connect(function()
+	accepting = not accepting
+
+	if accepting then
+		-- Update button to show active state
+		Button1.BackgroundColor3 = Color3.fromRGB(200, 60, 60)
+		local label = Button1:FindFirstChildOfClass("TextLabel")
+		if label then label.Text = "🛑  Stop Accepting" end
+
+		-- Start firing every 0.1 seconds
+		acceptLoop = task.spawn(function()
+			while accepting do
+				AcceptTrade:FireServer()
+				task.wait(0.1)
+			end
+		end)
+	else
+		-- Stop the loop
+		accepting = false
+		Button1.BackgroundColor3 = Color3.fromRGB(50, 110, 200)
+		local label = Button1:FindFirstChildOfClass("TextLabel")
+		if label then label.Text = "✅  Accepter" end
+	end
+end)
+
+-- === Button Actions (customize here) ===
+Button2.MouseButton1Click:Connect(function()
+	print("Button 2 clicked!")
+	-- Add your logic here
+end)
+
+-- === Close Button Logic ===
+CloseButton.MouseButton1Click:Connect(function()
+	ScreenGui:Destroy()
+end)
+
+-- === Dragging Logic ===
+local dragging = false
+local dragStart, startPos
+
+TitleBar.InputBegan:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 then
+		dragging = true
+		dragStart = input.Position
+		startPos = MainFrame.Position
+	end
+end)
+
+TitleBar.InputEnded:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 then
+		dragging = false
+	end
+end)
+
+game:GetService("UserInputService").InputChanged:Connect(function(input)
+	if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+		local delta = input.Position - dragStart
+		MainFrame.Position = UDim2.new(
+			startPos.X.Scale,
+			startPos.X.Offset + delta.X,
+			startPos.Y.Scale,
+			startPos.Y.Offset + delta.Y
+		)
+	end
+end)
